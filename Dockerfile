@@ -18,7 +18,7 @@ WORKDIR /var/www/html
 RUN composer require "texxasrulez/scheduled_sending" --no-update && composer update --no-dev
 
 # CRON e Entrypoint (conforme antes)
-RUN echo "* * * * * www-data /usr/bin/php /var/www/html/plugins/scheduled_sending/bin/send_scheduled.php > /dev/null 2>&1" >> /etc/cron.d/roundcube-schedule
+RUN echo "* * * * * curl -fsS \"${SS_WORKER_URL}/?_task=mail&_action=plugin.scheduled_sending.send_due&_token=${SS_WORKER_TOKEN}\" >> /var/log/roundcube_cron.log 2>&1" > /etc/cron.d/roundcube-schedule
 RUN chmod 0644 /etc/cron.d/roundcube-schedule
 RUN echo '#!/bin/bash\ncron\ndocker-php-entrypoint apache2-foreground' > /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
